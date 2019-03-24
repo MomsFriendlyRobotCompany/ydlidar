@@ -72,7 +72,8 @@ typedef _size_t (THREAD_PROC * thread_proc_t ) ( void * );
 typedef int32_t result_t;
 typedef uint64_t TTimeStamp;
 
-#define RESULT_OK      0
+// #define RESULT_OK      0
+const int RESULT_OK =     0;
 #define RESULT_TIMEOUT -1
 #define RESULT_FAIL    -2
 
@@ -84,7 +85,8 @@ enum {
 };
 
 
-#define IS_OK(x)    ( (x) == RESULT_OK )
+// #define IS_OK(x)    ( (x) == RESULT_OK )
+inline bool IS_OK(const int x){return (x == RESULT_OK);}
 #define IS_TIMEOUT(x)  ( (x) == RESULT_TIMEOUT )
 #define IS_FAIL(x)  ( (x) == RESULT_FAIL )
 

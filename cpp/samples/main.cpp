@@ -35,15 +35,20 @@ int main(int argc, char * argv[])
 
     laser.setSerialPort(port);
     laser.setSerialBaudrate(baudrate);
-    laser.setIntensities(intensities);//intensity
+    // laser.setIntensities(intensities);//intensity supported by S4B lidar
     laser.setAutoReconnect(true);//hot plug
-    laser.setMaxRange(16.0);
-    laser.setMinRange(0.26);
+    laser.setMaxRange(10.0);
+    laser.setMinRange(0.12);
     laser.setMaxAngle(180);
     laser.setMinAngle(-180);
-    laser.setReversion(false);
+    laser.setScanFrequency(7);  // scanning frequency
+    laser.setSampleRate(5);  // range frequency
+    laser.setReversion(true);
     laser.setFixedResolution(false);
     laser.initialize();
+
+    printf(">> sample rate: %d\n", laser.getSampleRate());
+    printf(">> scan freq: %d\n", laser.getScanFrequency());
 
     sleep(3);
 
@@ -61,7 +66,7 @@ int main(int argc, char * argv[])
                 }
                   float angle = (scan.config.min_angle + i*scan.config.ang_increment)*180.0/M_PI;
                   float dis = scan.ranges[i];
-                    printf("   %7.1f: %7.3f\n", angle, dis);
+                    // printf("   %7.3f: %7.3f\n", angle, dis);
 
               }
               ydlidar::console.message("Scan received[%f]: %u ranges",(scan.self_time_stamp - start)/1e9, (unsigned int)scan.ranges.size());
