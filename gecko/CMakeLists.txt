@@ -15,9 +15,14 @@ message(STATUS "-------------------------------------")
 list(APPEND ALL_LIBS "")
 
 # Add local -----------------------------------------------------
-include_directories(./include)
+# include_directories(./include)
 include_directories(/usr/local/include)
 link_directories(/usr/local/lib)
+
+# kevin ---------------------------------------------------------
+include_directories(/home/kevin/.local/include)
+include_directories(/home/kevin/.local/include/gecko/zmq)
+link_directories(/home/kevin/.local/lib)
 
 # ydlidar --------------------------------------------------------
 include_directories($ENV{HOME}/github/ydlidar/cpp/include)
@@ -25,15 +30,16 @@ link_directories($ENV{HOME}/github/ydlidar/cpp/build)
 list(APPEND ALL_LIBS "ydlidar_driver")
 
 # gecko ---------------------------------------------------------
-include_directories($ENV{HOME}/github/gecko/src)
-include_directories($ENV{HOME}/github/gecko/msgpack)
-include_directories($ENV{HOME}/github/gecko/zmq)
-link_directories($ENV{HOME}/github/gecko/build)
+# include_directories($ENV{HOME}/github/gecko/src)
+# include_directories($ENV{HOME}/github/gecko/msgpack)
+# include_directories($ENV{HOME}/github/gecko/zmq)
+# link_directories($ENV{HOME}/github/gecko/build)
 list(APPEND ALL_LIBS "gecko")
 
 if (NOT APPLE)
     set(msgpack_DIR $ENV{HOME}/.local/lib/cmake/msgpack)
     include_directories($ENV{HOME}/.local/include)
+    include_directories($ENV{HOME}/.local/include/gecko/msgpack)
     link_directories($ENV{HOME}/.local/lib)
 endif()
 
@@ -111,8 +117,10 @@ else()
 endif()
 
 # Build Gecko library ----------------------------------------------
-file(GLOB SOURCES *.cpp)
 include_directories(.)
-add_executable(${PROJECT_NAME} ${SOURCES})
-target_link_libraries(${PROJECT_NAME} ${ALL_LIBS})
-list(APPEND ALL_LIBS ${PROJECT_NAME})
+add_executable(pub pub.cpp)
+target_link_libraries(pub ${ALL_LIBS})
+
+add_executable(sub sub.cpp)
+target_link_libraries(sub ${ALL_LIBS})
+# list(APPEND ALL_LIBS ${PROJECT_NAME})

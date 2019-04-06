@@ -18,6 +18,21 @@ information in the `github` repo, so I assume I can use whatever I want.
 - 10-meter scanning range
 - Clockwise 360-degree rotary ranging module
 
+# Ubuntu Serial Access
+
+```
+$ sudo nano /etc/udev/rules.d/50-usb-serial.rules
+```
+
+And in the file that is opened by the GEdit, write these words:
+
+```
+KERNEL=="ttyUSB0", GROUP="kevin", MODE="0666"
+```
+
+Run this command: `sudo service udev restart`, but I did not run this command
+and it worked, too.
+
 # MIT License
 
 ## Copyright (c) 2019 Kevin J. Walchko
