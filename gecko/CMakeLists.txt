@@ -30,10 +30,10 @@ link_directories($ENV{HOME}/github/ydlidar/cpp/build)
 list(APPEND ALL_LIBS "ydlidar_driver")
 
 # gecko ---------------------------------------------------------
-# include_directories($ENV{HOME}/github/gecko/src)
-# include_directories($ENV{HOME}/github/gecko/msgpack)
-# include_directories($ENV{HOME}/github/gecko/zmq)
-# link_directories($ENV{HOME}/github/gecko/build)
+include_directories($ENV{HOME}/github/gecko/src)
+include_directories($ENV{HOME}/github/gecko-msgpack)
+include_directories($ENV{HOME}/github/gecko/zmq)
+link_directories($ENV{HOME}/github/gecko/build)
 list(APPEND ALL_LIBS "gecko")
 
 if (NOT APPLE)
