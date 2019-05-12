@@ -1,3 +1,4 @@
 *.pyc
 build
 html
+.ipynb_checkpoints
