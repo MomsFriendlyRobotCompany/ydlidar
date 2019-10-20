@@ -1,7 +1,9 @@
-// Example with Gecko
-// make sure to run a pygeckocore.py instance with key: dalek.
-// MIT License Kevin J Walchko 2019
-//
+/************************************************
+Example with Gecko
+MIT License Kevin J Walchko 2019
+----------------------------------------------
+node -u file -t topic -s serial -v
+*/
 
 #include <stdio.h>
 #include <stdint.h>
@@ -10,7 +12,6 @@
 #include <iostream>
 #include <gecko/gecko.hpp>
 #include <gecko/msgpack/msgs.hpp>
-// #include <gecko/msgpack/msgpack_pub_sub.hpp>
 #include "CYdLidar.h"
 
 using namespace std;
