@@ -1,47 +1,48 @@
 cmake_minimum_required(VERSION 3.10)
-PROJECT("gecko-test")
-#add_definitions(-std=c++11) # Use C++11
-# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+PROJECT("ydlidar")
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+cmake_host_system_information(RESULT HOST QUERY HOSTNAME)
+# cmake_host_system_information(RESULT CORES QUERY NUMBER_OF_LOGICAL_CORES)
+cmake_host_system_information(RESULT OSN QUERY OS_NAME)
+cmake_host_system_information(RESULT OS_VERSION QUERY OS_RELEASE)
+cmake_host_system_information(RESULT PROC QUERY PROCESSOR_DESCRIPTION)
+
 message(STATUS "-------------------------------------")
 message(STATUS "  Project: ${PROJECT_NAME}")
 message(STATUS "  C++ ${CMAKE_CXX_STANDARD}")
 message(STATUS "-------------------------------------")
+message(STATUS " ${HOST}")
+message(STATUS " ${OSN}: ${OS_VERSION}")
+message(STATUS " ${PROC}")
+message(STATUS "-------------------------------------")
+
+# # gecko.cmake ----------------------------------------------------
+# # set(WS "${PROJECT_SOURCE_DIR}/gecko_workspace.txt")
+# # set(GECKO_VERSION "gecko")
+# set(GECKO_BASE_PATH "/opt/gecko/modules/${PROJECT_NAME}")
+# # IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+# # else()
+# message(STATUS ">> Setting install base path: ${GECKO_BASE_PATH}")
+# set(CMAKE_INSTALL_PREFIX ${GECKO_BASE_PATH})
+# # ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+# set(GECKO_BIN     "${GECKO_BASE_PATH}/bin")
+# set(GECKO_LIB     "${GECKO_BASE_PATH}/lib")
+# set(GECKO_CMAKE   "${GECKO_BASE_PATH}/lib/cmake")
+# set(GECKO_INCLUDE "${GECKO_BASE_PATH}/include/gecko")
+
 
 list(APPEND ALL_LIBS "")
 
-# Add local -----------------------------------------------------
-# include_directories(./include)
-include_directories(/usr/local/include)
-link_directories(/usr/local/lib)
+# Add gecko -----------------------------------------------------
+include_directories(/opt/gecko/include)
+link_directories(/opt/gecko/lib)
 
-# kevin ---------------------------------------------------------
-include_directories(/home/kevin/.local/include)
-include_directories(/home/kevin/.local/include/gecko/zmq)
-link_directories(/home/kevin/.local/lib)
-
-# ydlidar --------------------------------------------------------
-include_directories($ENV{HOME}/github/ydlidar/cpp/include)
-link_directories($ENV{HOME}/github/ydlidar/cpp/build)
-list(APPEND ALL_LIBS "ydlidar_driver")
-
-# gecko ---------------------------------------------------------
-include_directories($ENV{HOME}/github/gecko/src)
-include_directories($ENV{HOME}/github/gecko-msgpack)
-include_directories($ENV{HOME}/github/gecko/zmq)
-link_directories($ENV{HOME}/github/gecko/build)
-list(APPEND ALL_LIBS "gecko")
-
-if (NOT APPLE)
-    set(msgpack_DIR $ENV{HOME}/.local/lib/cmake/msgpack)
-    include_directories($ENV{HOME}/.local/include)
-    include_directories($ENV{HOME}/.local/include/gecko/msgpack)
-    link_directories($ENV{HOME}/.local/lib)
-endif()
+include_directories(/opt/gecko/gecko/include)
+link_directories(/opt/gecko/gecko/lib)
 
 # Load in pkg-config support --------------------------------------
 find_package(PkgConfig)
@@ -62,7 +63,7 @@ if(APPLE)
       message(WARNING "\n<<--- Could not find MsgPack --->>\n")
   endif()
 elseif(UNIX)
-    find_package(msgpack REQUIRED)
+    find_package(msgpack REQUIRED HINTS /opt/gecko/lib/cmake)
     if(msgpack_FOUND)
         include_directories(${msgpack_INCLUDE_DIR})
         message(STATUS ">> MsgPack Found: ${msgpack_VERSION}")
@@ -75,16 +76,6 @@ elseif(UNIX)
     else()
         message(WARNING "\n<<--- Could not find MsgPack --->>\n")
     endif()
-endif()
-
-# Get zlib -----------------------------------------------------
-find_package(ZLIB)
-if(ZLIB_FOUND)
-    message(STATUS ">> zlib Found: ${ZLIB_VERSION_STRING}")
-    message(STATUS ">> zlib Found: ${ZLIB_LIBRARIES}")
-    list(APPEND ALL_LIBS ${ZLIB_LIBRARIES})
-else()
-    message(WARNING "\n<<--- Could not find zlib --->>\n")
 endif()
 
 # Threads ---------------------------------------------------------
@@ -116,11 +107,75 @@ else()
     message(WARNING "*** Could not find ZeroMQ ***")
 endif()
 
-# Build Gecko library ----------------------------------------------
-include_directories(.)
-add_executable(pub pub.cpp)
-target_link_libraries(pub ${ALL_LIBS})
 
-add_executable(sub sub.cpp)
-target_link_libraries(sub ${ALL_LIBS})
-# list(APPEND ALL_LIBS ${PROJECT_NAME})
+# Build ydlidar library ----------------------------------------------
+
+FILE(GLOB SDK_SRC
+    "../cpp/src/*.cpp"
+    "../cpp/src/*.c"
+    "../cpp/src/*.h"
+    "../cpp/src/impl/unix/*.cpp"
+    "../cpp/src/impl/unix/*.h"
+)
+
+FILE(GLOB HEADERS
+    "../cpp/include/*.h"
+    "../cpp/src/*.h"
+    "../cpp/src/impl/unix/*.h"
+)
+
+add_library(${PROJECT_NAME} SHARED ${SDK_SRC})
+target_link_libraries(${PROJECT_NAME} rt pthread)
+target_include_directories(${PROJECT_NAME}
+    PUBLIC
+        ../cpp/include
+        # ../cpp/src
+        ../cpp/include/impl/unix
+)
+
+# Build ydlidar node ----------------------------------------------
+# include_directories(.)
+
+set(LIDAR_BIN "gecko-ydlidar-node")
+
+add_executable(${LIDAR_BIN} pub.cpp)
+target_link_libraries(${LIDAR_BIN}
+    PUBLIC
+        ${ALL_LIBS}
+        ${PROJECT_NAME}
+        gecko
+)
+target_include_directories(${LIDAR_BIN}
+    PUBLIC
+        /opt/gecko/gecko/include/gecko/marko
+)
+
+# Install ----------------------------------------------------
+# set(WS "${PROJECT_SOURCE_DIR}/gecko_workspace.txt")
+# set(GECKO_VERSION "gecko")
+set(GECKO_BASE_PATH "/opt/gecko/modules/${PROJECT_NAME}")
+# IF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+# else()
+message(STATUS ">> Setting install base path: ${GECKO_BASE_PATH}")
+set(CMAKE_INSTALL_PREFIX ${GECKO_BASE_PATH})
+# ENDIF(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+set(GECKO_BIN     "${GECKO_BASE_PATH}/bin")
+set(GECKO_LIB     "${GECKO_BASE_PATH}/lib")
+set(GECKO_CMAKE   "${GECKO_BASE_PATH}/lib/cmake")
+set(GECKO_INCLUDE "${GECKO_BASE_PATH}")
+
+# message(STATUS ">> targetts: ${TARGETS}")
+
+install(TARGETS ${PROJECT_NAME} ${LIDAR_BIN}
+    ARCHIVE DESTINATION ${GECKO_LIB}  # static libraries
+    LIBRARY DESTINATION ${GECKO_LIB}  # shared libraries
+    RUNTIME DESTINATION ${GECKO_BIN}  # executables
+)
+
+install(DIRECTORY ../cpp/include
+    DESTINATION ${GECKO_INCLUDE}
+    FILES_MATCHING PATTERN "*.h"
+    PATTERN ".git" EXCLUDE
+)
+
+SET(CMAKE_INSTALL_RPATH "/opt/gecko/gecko/lib" "/opt/gecko/modules/ydlidar/lib")

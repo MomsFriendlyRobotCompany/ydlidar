@@ -11,14 +11,23 @@ information in the `github` repo, so I assume I can use whatever I want.
 
 [here](docs)
 
-# Specs
+## Specs
 
 - 360-degree scanning rangefinder
 - 5000 times/sec sampling rates
 - 10-meter scanning range
 - Clockwise 360-degree rotary ranging module
 
-# Ubuntu Serial Access
+
+# Setup
+
+## Library Path
+
+```
+export LD_LIBRARY_PATH=/opt/gecko/gecko/lib:$LD_LIBRARY_PATH
+```
+
+## Ubuntu Serial Access
 
 ```
 $ sudo nano /etc/udev/rules.d/50-usb-serial.rules
@@ -31,6 +40,12 @@ KERNEL=="ttyUSB0", GROUP="kevin", MODE="0666"
 ```
 
 Run this command: `sudo service udev restart`
+
+# Run
+
+```
+/opt/gecko/modules/ydlidar/bin/gecko-ydlidar-node
+```
 
 # MIT License
 

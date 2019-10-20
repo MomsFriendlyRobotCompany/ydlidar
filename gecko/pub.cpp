@@ -10,7 +10,7 @@
 #include <iostream>
 #include <gecko/gecko.hpp>
 #include <gecko/msgpack/msgs.hpp>
-#include <gecko/msgpack/msgpack_pub_sub.hpp>
+// #include <gecko/msgpack/msgpack_pub_sub.hpp>
 #include "CYdLidar.h"
 
 using namespace std;
@@ -41,13 +41,16 @@ int main(){
     laser.initialize();
 
     // Publisher *p = gecko::pubBindTCP("dalek", "lidar");
-    Publisher *p = gecko::pubBindUDS("dalek", "lidar", "/tmp/test-0");
+    // Publisher *p = gecko::pubBindUDS("dalek", "lidar", "/tmp/test-0");
+    Publisher *p = new Publisher();
+    p->bind(zmqUDS("/tmp/test-0"));
+
     if (p == nullptr) {
         printf("*** invalid publisher ***\n");
         return 1;
     }
 
-    mpPublisher<lidar_st> pub(p);
+    // mpPublisher<lidar_st> pub(p);
     Rate rate(5);
     unsigned long long start = 0;
 
@@ -65,7 +68,8 @@ int main(){
                 pt_t pt(angle, dis);
                 msg.data.push_back(pt);
             }
-            pub.publish(msg);
+            zmq::message_t m = msg.pack();
+            p->publish(m);
         }
         else {
             printf("Failed to get lidar data\n");
@@ -74,7 +78,7 @@ int main(){
         rate.sleep();
 
     }
-
+    delete p;
     laser.turnOff();
     laser.disconnecting();
 
