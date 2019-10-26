@@ -204,7 +204,10 @@ struct LaserConfig {
 //!
 //!
 //!
-struct LaserScan {
+
+
+// kevin
+struct LaserScanData {
     //! Array of ranges
     std::vector<float> ranges;
     //! Array of intensities
@@ -216,4 +219,3 @@ struct LaserScan {
     //! Configuration of scan
     LaserConfig config;
 };
-

@@ -55,7 +55,7 @@ void CYdLidar::disconnecting()
 /*-------------------------------------------------------------
 						doProcessSimple
 -------------------------------------------------------------*/
-bool  CYdLidar::doProcessSimple(LaserScan &outscan, bool &hardwareError){
+bool  CYdLidar::doProcessSimple(LaserScanData &outscan, bool &hardwareError){
 	hardwareError			= false;
 
 	// Bound?
@@ -124,7 +124,7 @@ bool  CYdLidar::doProcessSimple(LaserScan &outscan, bool &hardwareError){
 
              }
 
-            LaserScan scan_msg;
+            LaserScanData scan_msg;
 
             if (m_MaxAngle< m_MinAngle) {
                 float temp = m_MinAngle;
@@ -255,14 +255,14 @@ bool CYdLidar::getDeviceHealth() const {
         } else {
             ydlidar::console.error("YDLidar running correctly ! The health status is bad");
         }
-        if (healthinfo.status == 2) { 
+        if (healthinfo.status == 2) {
             ydlidar::console.error("Error, Yd Lidar internal error detected. Please reboot the device to retry.");
             return false;
-        } else {  
+        } else {
             return true;
         }
 
-    } else { 
+    } else {
         ydlidar::console.error( "Error, cannot retrieve Yd Lidar health code: %x", op_result);
         return false;
     }
@@ -275,10 +275,10 @@ bool CYdLidar::getDeviceInfo(int &type) {
 
 	device_info devinfo;
     result_t ans = lidarPtr->getDeviceInfo(devinfo);
-    if (!IS_OK(ans)) {   
+    if (!IS_OK(ans)) {
         ydlidar::console.error("get DeviceInfo Error" );
 		return false;
-	}	 
+	}
 	std::string model;
     sampling_rate _rate;
     int _samp_rate=4;
@@ -508,7 +508,7 @@ bool CYdLidar::getDeviceInfo(int &type) {
         }
 
 		return true;
-	
+
 
 }
 
@@ -710,8 +710,8 @@ bool CYdLidar::initialize()
     }
     if (!turnOn()) {
         ydlidar::console.warning("[CYdLidar::initialize] Error initializing YDLIDAR scanner. Because the motor falied to start.");
-		
+
 	}
     return ret;
-	
+
 }

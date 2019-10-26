@@ -11,11 +11,14 @@ node -u file -t topic -s serial -v
 #include <vector>
 #include <iostream>
 #include <gecko/gecko.hpp>
-#include <gecko/msgpack/msgs.hpp>
+#include <gecko/protobuf/msgs.pb.h>
+#include <gecko/protobuf/helper_pb.h>
+// #include <gecko/protobuf/gecko_pb.h>
 #include "CYdLidar.h"
 
 using namespace std;
 using namespace ydlidar;
+using namespace geckopb;
 
 
 int main(){
@@ -57,19 +60,29 @@ int main(){
 
     while(gecko::ok()){
         bool hardError;
-        LaserScan scan;
+        LaserScanData scan;
 
         if(laser.doProcessSimple(scan, hardError )){
-            lidar_st msg;
-
+            // lidar_st msg;
+            LaserScan msg;
             for(int i =0; i < scan.ranges.size(); i++ ){
                 double angle = (scan.config.min_angle + i*scan.config.ang_increment)*180.0/M_PI;
                 double dis = scan.ranges[i];
                 // printf("   %7.3f: %7.3f\n", angle, dis);
-                pt_t pt(angle, dis);
-                msg.data.push_back(pt);
+                // pt_t pt(angle, dis);
+                // msg.data.push_back(pt);
+                msg.add_ranges(dis);
             }
-            zmq::message_t m = msg.pack();
+            zmq::message_t m = protobufPack<LaserScan>(msg);
+            //
+            // for(int i =0; i < scan.ranges.size(); i++ ){
+            //     double angle = (scan.config.min_angle + i*scan.config.ang_increment)*180.0/M_PI;
+            //     double dis = scan.ranges[i];
+            //     // printf("   %7.3f: %7.3f\n", angle, dis);
+            //     pt_t pt(angle, dis);
+            //     msg.data.push_back(pt);
+            // }
+            // zmq::message_t m = msg.pack();
             p->publish(m);
         }
         else {

@@ -48,34 +48,44 @@ link_directories(/opt/gecko/gecko/lib)
 find_package(PkgConfig)
 
 # Get msgpack -----------------------------------------------------
-if(APPLE)
-  pkg_check_modules(MessagePack REQUIRED msgpack)
-  if(MessagePack_FOUND)
-      include_directories(${MessagePack_INCLUDE_DIR})
-      message(STATUS ">> MsgPack Found: ${MessagePack_VERSION}")
-      message(STATUS ">> MsgPack: ${MessagePack_LIBRARIES}  ${MessagePack_INCLUDE_DIR}")
-      list(APPEND ALL_LIBS ${ALL_LIBS} ${MessagePack_LIBRARIES})
+# if(APPLE)
+#   pkg_check_modules(MessagePack REQUIRED msgpack)
+#   if(MessagePack_FOUND)
+#       include_directories(${MessagePack_INCLUDE_DIR})
+#       message(STATUS ">> MsgPack Found: ${MessagePack_VERSION}")
+#       message(STATUS ">> MsgPack: ${MessagePack_LIBRARIES}  ${MessagePack_INCLUDE_DIR}")
+#       list(APPEND ALL_LIBS ${ALL_LIBS} ${MessagePack_LIBRARIES})
+#
+#       # this is a template library, so no cpp
+#       include_directories(msgpack)
+#
+#   else()
+#       message(WARNING "\n<<--- Could not find MsgPack --->>\n")
+#   endif()
+# elseif(UNIX)
+#     find_package(msgpack REQUIRED HINTS /opt/gecko/lib/cmake)
+#     if(msgpack_FOUND)
+#         include_directories(${msgpack_INCLUDE_DIR})
+#         message(STATUS ">> MsgPack Found: ${msgpack_VERSION}")
+#         message(STATUS ">> MsgPack: ${msgpack_LIBS}  ${msgpack_INCLUDE_DIR}")
+#         list(APPEND ALL_LIBS ${msgpack_LIBRARIES})
+#
+#         # this is a template library, so no cpp
+#         include_directories(msgpack)
+#
+#     else()
+#         message(WARNING "\n<<--- Could not find MsgPack --->>\n")
+#     endif()
+# endif()
 
-      # this is a template library, so no cpp
-      include_directories(msgpack)
-
-  else()
-      message(WARNING "\n<<--- Could not find MsgPack --->>\n")
-  endif()
-elseif(UNIX)
-    find_package(msgpack REQUIRED HINTS /opt/gecko/lib/cmake)
-    if(msgpack_FOUND)
-        include_directories(${msgpack_INCLUDE_DIR})
-        message(STATUS ">> MsgPack Found: ${msgpack_VERSION}")
-        message(STATUS ">> MsgPack: ${msgpack_LIBS}  ${msgpack_INCLUDE_DIR}")
-        list(APPEND ALL_LIBS ${msgpack_LIBRARIES})
-
-        # this is a template library, so no cpp
-        include_directories(msgpack)
-
-    else()
-        message(WARNING "\n<<--- Could not find MsgPack --->>\n")
-    endif()
+# Protobuf ------------------------------------------------------
+find_package(Protobuf 3 REQUIRED)
+if ( Protobuf_FOUND )
+    # include_directories(${Protobuf_INCLUDE_DIRS})
+    # include_directories(${CMAKE_CURRENT_BINARY_DIR})
+    message( STATUS "Protobuf version : ${Protobuf_VERSION}" )
+else()
+    message(ERROR "Couldn't find Protobuf library")
 endif()
 
 # Threads ---------------------------------------------------------
@@ -144,6 +154,9 @@ target_link_libraries(${LIDAR_BIN}
         ${ALL_LIBS}
         ${PROJECT_NAME}
         gecko
+        proto
+        marko
+        ${Protobuf_LIBRARIES}
 )
 target_include_directories(${LIDAR_BIN}
     PUBLIC
