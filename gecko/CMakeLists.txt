@@ -163,6 +163,21 @@ target_include_directories(${LIDAR_BIN}
         /opt/gecko/gecko/include/gecko/marko
 )
 
+add_executable(gecko-sub sub.cpp)
+target_link_libraries(gecko-sub
+    PUBLIC
+        ${ALL_LIBS}
+        ${PROJECT_NAME}
+        gecko
+        proto
+        marko
+        ${Protobuf_LIBRARIES}
+)
+target_include_directories(gecko-sub
+    PUBLIC
+        /opt/gecko/gecko/include/gecko/marko
+)
+
 # Install ----------------------------------------------------
 # set(WS "${PROJECT_SOURCE_DIR}/gecko_workspace.txt")
 # set(GECKO_VERSION "gecko")

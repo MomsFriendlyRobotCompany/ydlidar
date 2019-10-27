@@ -61,17 +61,27 @@ int main(){
     while(gecko::ok()){
         bool hardError;
         LaserScanData scan;
+        LaserScan msg;
 
         if(laser.doProcessSimple(scan, hardError )){
             // lidar_st msg;
-            LaserScan msg;
-            for(int i =0; i < scan.ranges.size(); i++ ){
-                double angle = (scan.config.min_angle + i*scan.config.ang_increment)*180.0/M_PI;
-                double dis = scan.ranges[i];
-                // printf("   %7.3f: %7.3f\n", angle, dis);
+            // LaserScan msg;
+            msg.clear_points();
+            for(int i = 0; i < scan.ranges.size(); i++ ){
+                float angle = (scan.config.min_angle + i*scan.config.ang_increment)*180.0/M_PI;
+                float dis = scan.ranges[i]; // + 0.00001;  // if every 0 meters, pb will not send field, so add 0.01 mm
+                // float inten = scan.intensities[i];
+                printf("   %7.3f: %7.3f\n", angle, dis);
                 // pt_t pt(angle, dis);
                 // msg.data.push_back(pt);
-                msg.add_ranges(dis);
+                // LaserPt p;
+                // p.set_angle(angle);
+                // p.set_range(dis);
+                // msg.add_range(dis);
+                LaserPt *p = msg.add_points();
+                p->set_angle(angle);
+                p->set_range(dis);
+                // p->set_intensity(inten);
             }
             zmq::message_t m = protobufPack<LaserScan>(msg);
             //
